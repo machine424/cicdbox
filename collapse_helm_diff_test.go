@@ -9,19 +9,13 @@ import (
 	"testing"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func absolutePath(name string) string {
-	return fmt.Sprintf("files/collapse_helm_diff/%s", name)
+func absoluteTestPath(name string) string {
+	return fmt.Sprintf("files/%s", name)
 }
 
 func openFile(name string) *os.File {
 	file, err := os.Open(name)
-	check(err)
+	panicOnError(err)
 	return file
 }
 
@@ -29,6 +23,20 @@ func echoLines(input *bufio.Scanner, output io.Writer) {
 	for input.Scan() {
 		echo(output, input.Text())
 	}
+}
+
+func loadTestFiles(inputFilePath, expectFilePath string) (*bufio.Scanner, strings.Builder) {
+	// input (we d not close it explicitly)
+	inputFile := openFile(inputFilePath)
+	input := bufio.NewScanner(inputFile)
+
+	// expected output
+	expectFile := openFile(expectFilePath)
+	defer expectFile.Close()
+	var expect strings.Builder
+	echoLines(bufio.NewScanner(expectFile), &expect)
+
+	return input, expect
 }
 
 func TestEcho(t *testing.T) {
@@ -41,6 +49,12 @@ func TestEcho(t *testing.T) {
 	}
 }
 
+func assertEqual(t *testing.T, expect, output strings.Builder) {
+	if expect.String() != output.String() {
+		t.Errorf("got %s but expected %s", output.String(), expect.String())
+	}
+}
+
 func TestCollapseHelmDiff(t *testing.T) {
 	tt := []struct {
 		description string
@@ -48,29 +62,17 @@ func TestCollapseHelmDiff(t *testing.T) {
 		args        []string
 		expect      string
 	}{
-		{"", absolutePath("diff_1.in"), []string{`bar`}, absolutePath("diff_1.outt")},
-		{"", absolutePath("diff_2.in"), []string{`^\s+-?image: docker\.foo\.fr`}, absolutePath("diff_2.outt")},
-		{"", absolutePath("diff_3.in"), []string{`^\s+-?image: docker\.foo\.fr`}, absolutePath("diff_3.outt")},
+		{"no diff", absoluteTestPath("diff_1.in"), []string{`bar`}, absoluteTestPath("diff_1.outt")},
+		{"diff to callapse", absoluteTestPath("diff_2.in"), []string{`^\s+-?image: docker\.foo\.fr`}, absoluteTestPath("diff_2.outt")},
+		{"diff to keep", absoluteTestPath("diff_3.in"), []string{`^\s+-?image: docker\.foo\.fr`}, absoluteTestPath("diff_3.outt")},
 	}
 	for _, tc := range tt {
 		t.Run(tc.description, func(t *testing.T) {
-			// input
-			diffInFile := openFile(tc.diff)
-			defer diffInFile.Close()
-			input := bufio.NewScanner(diffInFile)
+			input, expect := loadTestFiles(tc.diff, tc.expect)
 
-			// expected output
-			rawExpectInFile := openFile(tc.expect)
-			defer rawExpectInFile.Close()
-			var expect strings.Builder
-			echoLines(bufio.NewScanner(rawExpectInFile), &expect)
-
-			// run
 			var output strings.Builder
 			collapseHelmDiff(input, &output, tc.args)
-			if expect.String() != output.String() {
-				t.Errorf("got %s but expected %s", output.String(), expect.String())
-			}
+			assertEqual(t, expect, output)
 		})
 	}
 }

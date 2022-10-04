@@ -1,0 +1,32 @@
+...
+foo:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: Preemptible
+          operator: In
+          values:
+          - "true"
+  podAnnotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+  tolerations:
+  - effect: NoSchedule
+    key: Preemptible
+    value: "true"
+Successfully generated the value file at values/per-environment/review-values.yaml.gotmpl. produced:
+worker:
+        replicaCount: 0
+Upgrading release=release, chart=chart
+exec: helm upgrade --install --debug ...
+helm:vaGzI> history.go:56: [debug] getting history for release release
+helm:vaGzI> upgrade.go:142: [debug] preparing upgrade for release
+helm:vaGzI> upgrade.go:499: [debug] resetting values to the chart's original version
+helm:vaGzI> coalesce.go:175: warning: skipped value for etcd-patroni.tolerations: Not a table.
+
+helm:vaGzI> upgrade.go:150: [debug] performing update for release
+helm:vaGzI> upgrade.go:322: [debug] creating upgraded release for release
+helm:vaGzI> client.go:310: [debug] Starting delete for "release-ephemeral" ServiceAccount
+helm:vaGzI> client.go:128: [debug] creating 1 resource(s)
+helm:vaGzI> client.go:310: [debug] Starting delete for "release-ephemeral" Secret
+...

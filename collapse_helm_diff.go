@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -13,18 +12,12 @@ import (
 )
 
 const (
-	COLOR_RESET   = "[0m"
-	RESOURCE_DIFF = "[0;33m"
+	COLOR_RESET   = "\x1b[0m"
+	RESOURCE_DIFF = "\x1b[0;33m"
 	ELLIPSIS      = "..."
-
-	COLLAPSED_SECTION_END = `\e[0Ksection_end:1664723888:section\r\e[0K`
 )
 
-var DIFF_COLOR_PREFIXES = []string{"[0;31m-", "[0;32m+"}
-
-func collapsedSectionStart(header string) string {
-	return fmt.Sprintf(`\e[0Ksection_start:1664723888:section[collapsed=true]\r\e[0K%s`, header)
-}
+var DIFF_COLOR_PREFIXES = []string{"\x1b[0;31m-", "\x1b[0;32m+"}
 
 func matchesPattern(str string, patterns []*regexp.Regexp) bool {
 	for _, pattern := range patterns {
@@ -67,20 +60,16 @@ func echo(w io.Writer, str string) {
 	}
 }
 
-func collapse(w io.Writer, diffs []string, patterns []*regexp.Regexp) {
-	if len(diffs) == 0 {
+func collapse(w io.Writer, lines []string, patterns []*regexp.Regexp) {
+	if len(lines) == 0 {
 		return
 	}
-	header, body := diffs[0], diffs[1:]
+	header, body := lines[0], lines[1:]
 	if matchesPattern(uncolor(header), patterns) {
 		header = ELLIPSIS
-		body = diffs
+		body = lines
 	}
-	echo(w, collapsedSectionStart(header))
-	for _, line := range body {
-		echo(w, line)
-	}
-	echo(w, COLLAPSED_SECTION_END)
+	echoCollapsed(w, header, body)
 }
 
 func processResourceDiff(w io.Writer, diffs []string, patterns []*regexp.Regexp) {
@@ -125,10 +114,7 @@ func collapseHelmDiff(input *bufio.Scanner, output io.Writer, args []string) {
 	}
 	patterns := make([]*regexp.Regexp, len(regexes))
 	for i, regex := range regexes {
-		pattern, err := regexp.Compile(regex)
-		if err != nil {
-			log.Fatal(err)
-		}
+		pattern := regexp.MustCompile(regex)
 		patterns[i] = pattern
 	}
 
@@ -144,7 +130,7 @@ func collapseHelmDiff(input *bufio.Scanner, output io.Writer, args []string) {
 	processResourceDiff(output, resourceDiff, patterns)
 
 	if err := input.Err(); err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 }
 

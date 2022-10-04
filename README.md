@@ -22,6 +22,7 @@ Diff without `collapse-helm-diff`:
 After hiding `image: docker.foo.fr...` diffs:
 
 ```
+  # Don't forget to set -o pipefail (in bash e.g.) to pervent helm diff errors from being masked.
   - helm diff | ./cicdbox collapse-helm-diff '^\s+-?image: docker\.foo\.fr' 
 ```
 
@@ -60,8 +61,8 @@ metadata:
   name: sh.helm.release.v1.SELECTED-RELEASE.v1
   ...
   annotations:
-    cicdbox/releaser: $GITLAB_USER_LOGIN
-    cicdbox/gitlab-ci-pipeline-url: $CI_PIPELINE_URL
+    cicdbox/releaser: username
+    cicdbox/gitlab-ci-pipeline-url: https://gitlab.foo.bar/foo/bar/foo/-/pipelines/173171
 ...
 ```
 
@@ -70,3 +71,19 @@ This can help understanding how a release ended up there, how to fix it, whom to
 `./cicdbox annotate-helmfile-releases --help` for more details.
 
 Supposes `helmfile` and `kubectl` are available.
+
+### listen-helm-debug
+
+Get Helm relevant `--debug` logs and hide the rest in a collapsed section, these logs can tell you for which resources Helm is waiting and provide users a fast feedback. No more `Help! my deploy job is stuck`
+
+Example:
+
+```
+  # Don't forget to set -o pipefail (in bash e.g.) to pervent helm diff errors from being masked.
+  # Don't forget to set the --debug flag
+  - helmfile --debug sync | ./cicdbox listen-helm-debug
+```
+
+The output would look like:
+
+![listen_helm_output](./images/listen_helm_output.png)

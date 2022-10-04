@@ -37,6 +37,7 @@ func TestAnnotateHelmfileReleases(t *testing.T) {
 		TEST SUITE: None
 		
 		`, []namespacedSecret{{namespace: "foo", secretName: "sh.helm.release.v1.bar.v5"}}},
+		{"no release", ``, []namespacedSecret(nil)},
 	}
 	for _, tc := range tt {
 		t.Run(tc.description, func(t *testing.T) {
