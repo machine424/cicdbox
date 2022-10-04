@@ -1,0 +1,18 @@
+\e[0Ksection_start:1664723888:section[collapsed=true]\r\e[0K[0;33mbar-staging-toto, bar-staging-toto-dodo, CronJob (batch) has changed:[0m
+...
+      helm.sh/chart: foo-41.7.2
+      app.kubernetes.io/instance: bar-staging-toto
+\e[0Ksection_end:1664723888:section\r\e[0K
+[0;31m-     app.kubernetes.io/gogo: "bad295269b90c56548fde11bb5e4c81306605998"[0m
+[0;32m+     app.kubernetes.io/gogo: "3c8d347e796da5173370285708b51dbd91261607"[0m
+\e[0Ksection_start:1664723888:section[collapsed=true]\r\e[0K      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/component: cron-job-dodo
+...
+            containers:
+              - name: dodo
+[0;31m-               image: docker.foo.fr/foo/bar-dodo/bar-dodo-backend/main:bad295269b90c56548fde11bb5e4c81306605998[0m
+[0;32m+               image: docker.foo.fr/foo/bar-dodo/bar-dodo-backend/main:3c8d347e796da5173370285708b51dbd91261607[0m
+                command:
+                  - cmd
+...
+\e[0Ksection_end:1664723888:section\r\e[0K
