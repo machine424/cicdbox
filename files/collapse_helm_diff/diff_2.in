@@ -1,0 +1,9 @@
+[0;33mbar-staging-toto, bar-staging-qoqo-toto, CronJob (batch) has changed:[0m
+...
+            containers:
+              - name: toto
+[0;31m-               image: docker.foo.fr/foo/bar-dodo/bar-dodo-backend/main:bad295269b90c56548fde11bb5e4c81306605998[0m
+[0;32m+               image: docker.foo.fr/foo/bar-dodo/bar-dodo-backend/main:3c8d347e796da5173370285708b51dbd91261607[0m
+                command:
+                  - cmd
+...
