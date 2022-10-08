@@ -74,14 +74,13 @@ Supposes `helmfile` and `kubectl` are available.
 
 ### listen-helm-debug
 
-Get Helm relevant `--debug` logs and hide the rest in a collapsed section, these logs can tell you for which resources Helm is waiting and provide users a fast feedback. No more `Help! my deploy job is stuck`
+Get Helm relevant live `--debug` logs and hide the rest in a collapsed section, these logs can tell you for which resources Helm is waiting and provide users a fast feedback. No more `Help! my deploy job is stuck`.
 
 Example:
 
 ```
-  # Don't forget to set -o pipefail (in bash e.g.) to pervent helm diff errors from being masked.
-  # Don't forget to set the --debug flag
-  - helmfile --debug sync | ./cicdbox listen-helm-debug
+  - set -o pipefail
+  - helmfile --debug sync |& ./cicdbox listen-helm-debug
 ```
 
 The output would look like:
